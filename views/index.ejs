@@ -1,0 +1,157 @@
+<meta charset="utf-8" <!DOCTYPE html />
+<!--suppress ALL -->
+<html lang="en">
+  ​
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+    <title>iFrame Tutorial</title>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <script src="https://cdn.polyfill.io/v3/polyfill.min.js"></script>
+    <script src="https://checkout.sandbox.dev.clover.com/sdk.js"></script>
+  </head>
+  <body>
+    <h1>Thomas Store</h1>
+    <form method="post" id="payment-form">
+      <div class="form-row top-row">
+        <div id="amount" class="field card-number">
+          <input name="amount" placeholder="Amount" />
+        </div>
+      </div>
+
+      <div class="form-row top-row">
+        <div id="card-number" class="field card-number"></div>
+        <div class="input-errors" id="card-number-errors" role="alert"></div>
+      </div>
+
+      <div class="form-row">
+        <div id="card-date" class="field third-width"></div>
+        <div class="input-errors" id="card-date-errors" role="alert"></div>
+      </div>
+
+      <div class="form-row">
+        <div id="card-cvv" class="field third-width"></div>
+        <div class="input-errors" id="card-cvv-errors" role="alert"></div>
+      </div>
+
+      <div class="form-row">
+        <div id="card-postal-code" class="field third-width"></div>
+        <div
+          class="input-errors"
+          id="card-postal-code-errors"
+          role="alert"
+        ></div>
+      </div>
+
+      <div id="card-response" role="alert"></div>
+      <div class="button-container">
+        <button>Submit Payment</button>
+      </div>
+    </form>
+  </body>
+  <script>
+    console.log("Clover SDK loaded");
+    const clover = new Clover("0abfb1b2c855e73e4594c5c298e81c27");
+    const elements = clover.elements();
+
+    const styles = {
+      body: {
+        fontFamily: "Roboto, Open Sans, sans-serif",
+        fontSize: "16px",
+      },
+      input: {
+        fontSize: "20px",
+        padding: "0px",
+        margin: "0px",
+      },
+    };
+
+    const form = document.getElementById("payment-form");
+    const cardNumber = elements.create("CARD_NUMBER", styles);
+    const cardDate = elements.create("CARD_DATE", styles);
+    const cardCvv = elements.create("CARD_CVV", styles);
+    const cardPostalCode = elements.create("CARD_POSTAL_CODE", styles);
+
+    cardNumber.mount("#card-number");
+    cardDate.mount("#card-date");
+    cardCvv.mount("#card-cvv");
+    cardPostalCode.mount("#card-postal-code");
+
+    const cardResponse = document.getElementById("card-response");
+    const displayCardNumberError =
+      document.getElementById("card-number-errors");
+    const displayCardDateError = document.getElementById("card-date-errors");
+    const displayCardCvvError = document.getElementById("card-cvv-errors");
+    const displayCardPostalCodeError = document.getElementById(
+      "card-postal-code-errors"
+    );
+
+    // Handle real-time validation errors from the card element
+    cardNumber.addEventListener("change", function (event) {
+      console.log(`cardNumber changed ${JSON.stringify(event)}`);
+    });
+
+    cardNumber.addEventListener("blur", function (event) {
+      console.log(`cardNumber blur ${JSON.stringify(event)}`);
+    });
+
+    cardDate.addEventListener("change", function (event) {
+      console.log(`cardDate changed ${JSON.stringify(event)}`);
+    });
+
+    cardDate.addEventListener("blur", function (event) {
+      console.log(`cardDate blur ${JSON.stringify(event)}`);
+    });
+
+    cardCvv.addEventListener("change", function (event) {
+      console.log(`cardCvv changed ${JSON.stringify(event)}`);
+    });
+
+    cardCvv.addEventListener("blur", function (event) {
+      console.log(`cardCvv blur ${JSON.stringify(event)}`);
+    });
+
+    cardPostalCode.addEventListener("change", function (event) {
+      console.log(`cardPostalCode changed ${JSON.stringify(event)}`);
+    });
+
+    cardPostalCode.addEventListener("blur", function (event) {
+      console.log(`cardPostalCode blur ${JSON.stringify(event)}`);
+    });
+
+    function cloverTokenHandler(token) {
+      // Insert the token ID into the form so it gets submitted to the server
+      var form = document.getElementById("payment-form");
+      // var hiddenInput = document.createElement("input");
+      // hiddenInput.setAttribute("type", "hidden");
+      // hiddenInput.setAttribute("name", "cloverToken");
+      // hiddenInput.setAttribute("value", token);
+      // form.appendChild(hiddenInput);
+      // form.submit();
+    }
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      console.log("Form submitted");
+      // Use the iframe's tokenization method with the user-entered card details
+      clover
+        .createToken()
+        .then(function (result) {
+          if (result.errors) {
+            Object.values(result.errors).forEach(function (value) {
+              displayError.textContent = value;
+            });
+          } else {
+            console.log("Token created: ", result.token);
+            cloverTokenHandler(result.token);
+          }
+        })
+        .catch(function (error) {
+          console.error("Error creating token: ", error);
+        });
+    });
+  </script>
+</html>
